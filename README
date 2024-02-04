@@ -1,0 +1,147 @@
+# Programarea Calculatoarelor, seria CC
+## Tema2 - 2048
+	Nume student: Barbu Alexandru Daniel  
+	Seria: 314CC  
+	Titlu proiect: "2048 the game"
+
+	NOTE:
+		Stiu ca mi-ati zis ca functiile se sciu cu litera mica, 
+		dar am ramas cu acest standard deoarece aveam ceva din tema facuta cand am vazut rezultatele temei 1.
+		Variabilele sunt cu litera mica acum, cel putin.
+
+## CUPRINS:
+   0. DESCRIERE APLICATIE
+   1. INSTALARE SI RULARE
+   2. CONTROALE
+   3. DETALIERE FUNCTIONALITATI
+   4. PLANURI DE VIITOR
+   5. IMPRESII PERSONALE
+
+## 0. DESCRIERE APLICATIE:
+	
+	2048 este un joc pe care sigur multi il stiati deja. Proiectul este realizat ca urmare a temei 2 a cursului Programarea Calculatoarelor si consta in implementarea jocului 2048 in limbajul C, folosind biblioteca ncurses pentru UI.
+	Aplicatia are multe din functionalitatile standard ale unui joc si vor fi detaliate fiecare mai jos si explicate in cadrul codului.
+
+## 1. INSTALARE SI RULARE:	
+
+	Pasi:
+		1. Se vor extrage elementele din arhiva.  
+		2. Se va compila codul folosind comanda: make
+		3. Se va rula executabilul creat (jocul propriu zis), folosind comanda: make run  
+   
+   NOTE:
+   		- compilarea este obligatorie inainte de rulare;
+		- este nevoie de instalarea bibliotecilor: ncurses.h, time.h, stdlib.h, ctype.h si string.h pentru a rula jocul cu succes
+
+## 2. CONTROALE:
+
+	Controalele se pot gasi in meniul principal la sectiunea HOW TO PLAY.  
+
+	WASD / sageti - selectare optiuni meniu sau pentru mutarea numerelor in timpul jocului  
+	P - pune jocul pe pauza  
+	Q - de oriunde iese la fereastra anterioara, iar apasat in meniu iese din aplicatie  
+	U - in cadrul jocului pentru a face UNDO la miscarea aleasa
+
+	Alternativ se poate apasa CTRL+C pt a iesi din program.
+
+## 3. DETALIERE FUNCTIONALITATI:
+
+	### Cerinta 1:
+		Exista cele 3 optiuni cerute cu implementarile lor. 
+		
+		La selectarea lui NEW GAME se incepe un joc nou, 
+		la RESUME se reia ultimul joc din memorie (ultimul joc este salvat in memorie, programul se poate inchide, iar scorul si tabla de joc vor fi incarcate cu succes), 
+		iar la selectarea lui Quit se iese din aplicatie. Fiecare optiune cand este selectata are un highlight.
+
+		La selectarea lui RESUME la inceput de joc nu se petrece nimic daca nu exista nimic in memorie.
+			
+			#### EXTRA-1:
+			In cod am pus o constanta ce desemneaza numarul de iteme din meniu pentru a adauga oricate taburi vreau pe viitor. 
+			Exemple elovente al acestei inginerii sunt taburile: HOW TO PLAY, CREDITS si LEADERBOARD.
+			
+			Tabela de LEADERBOARD are 5 sloturi libere la inceput.
+			CREDITS ofera informatii despre mine, developer. :)
+			HOW TO PLAY ofera informatii despre controale.
+
+	### Cerinta 2:
+		Scorul este initial 0, data si ora curente se afiseaza actualizat la fiecare miscare, iar in dreapta este o legenda scurta a tastelor acceptate, care nu ocupa mult din ecranul jocului.  
+		Valorile 2 sau 4 sunt generate automat la new game cat edoua si cate una la fiecare miscare a jucatorului.
+
+			#### EXTRA-2:
+			Am impartit fereastra jocului in doua ferestre. 
+			In fereastra de sus sunt informatiile cerute mai sus, iar in fereastra mai mare se gaseste tabla de joc.
+			Deasupra tablei de joc este un cronometru care dupa cele 30 de secunde va face singur o miscare pe tabla de joc. (aceasta este cerinta 4)
+
+	### Cerinta 3:
+		Jocul prezinta deplasarea si imbinarea celulelor, generarea valorilor 2 sau 4 pe pozitii libere si asteptarea inputului valid de la jucator.
+		La fiecare operatie de imbinare se adauga la scor valoarea casutei ultime formate din cele doua casute condensate (la 2 2 se adauga 4 la scor, la 16 16 16 se adauga 32 la scor, iar linia devine 32 16 in cazul mutarii la stanga etc...)
+		La inceput scorul este 0.
+
+			#### EXTRA-3:
+			Am implementat un meniu de pauza ce nu obstructioneaza tabla de joc pentru a oferi o mai mare libertate de timp jucatorului pentru a-si calcula mutarea.
+			In cadrul functiei de printare a tablei de joc am implementat un switch pentru a putea da culori diverselor elemente, dar terminaul meu nu suporta culori. 
+			Pentru a acoperi acest lips am lasat switch-ul pentru a se vedea cat de usor se poate adauga acest element de design.
+			La joc am adaugat si optiunea de UNDO, la apasarea tastei U.
+
+	### Cerinta 4:
+		Am implementat ceea ce s-a cerut, codul este explicat cu comentarii pentru detalii suplimentare. 
+		Am adaugat vizual un cronometru pentru atentionarea jucatorului.
+
+		#### EXTRA-4:
+		In cerinta se cere ca AI-ul sa mute astfel incat sa elibereze cat mai multe patratele, dar am considerat o metoda mai buna mutarea ce rezulta in scorul cel mai mare. 
+		Implemenatera ceruta poate fi aplicata cu usurinta, deoarece am creat functiile cu scopul de a acomoda o astfeld e schimbare. 
+			
+		Mai jos imi voi elabora explicatia deciziei: 
+				
+			Metoda mea de mutare a AI-ului face o mutare care va rezulta in cel mai mare scor.
+			Abordarea nu este aceeasi cu cea ceruta in enunt (sa se curete cat mai multe patratele)!!
+
+			EXEMPLU:
+				Doua casute adiacente cu valoarea 64, la o mutare buna acestea vor aduna 128 la scor, curatand o casuta, 
+				daca as fi avut alta mutarea ce ar fi condensat casutele 2 2 2 2, de esemplu, la scor se va adauga 8 (un 4 + un alt 4), dar se vor curata doua casute.
+
+			Am ales aceasta implementare deoarece:
+				- Mi se pare o alegere mai buna in spiritul competitiv al jocului.
+				- Daca am doua casute cu valorile 1024 sunt sigur ca exista sanse ca o astfel de miscare, ceruta in enunt, sa blocheze cele doua casute rezultand in game over :)))
+
+			Implementarea ceruta ar fi aratat asa:*
+				ignore = 0;
+				Movement(tablaJocCopy,0,&ignore);
+				move1.score=ignore;
+				move1.dir=0;
+				CPYelement(tablaJoc,tablaJocCopy);
+
+				ignore = 0;
+				// .... etc pt restul comenzilor
+
+	### Cerinta 5:
+		Am rezolvat aceasta cerinta cu doua functii de verificare, una ce imi spune daca exsta loc pe tabla, alta care spune daca am 2048 pe tabla, in functie de rezultat se printeaza mesajul corespunzator.
+
+			#### EXTRA-5:
+			Dupa ce jocul se incheie am dat posibilitatea submitarii unui nume, pentru a fi afisat pe leaderboard.
+	
+## 4. PLANURI DE VIITOR:
+
+	Acestea nu se vor materializa cel mai probabil, dar fundatia jocului este solida si permite asemenea schimbari:
+		1. Marime modulara a tablei de joc: 4, 8, 16 patratele etc (in loc sa fac for-ul de la 0 la 4 il fac de la 0 la o constanta definita sus)
+		2. Undo states:         sa se poata da undo de mai mult de o data (ar trebui sa retin x table de joc in memorie iar la apasarea tastei U de mai multe ori se va trece prin cele x matrice salvate)
+		3. Panou de setari:     in meniul principal unde se ajusteaza dimensiunea tablei, timpul pe care il are AI-ul la dispozitie sa execute o comanda sau alte variabile.
+		4. Diverse dificultati: pe tabla exista sanse sa se genereze valori mai mari de 4 odata ce s-au "descoperit" (EX: 8,16,32 etc). 
+								Cu cat este mai usor cu atat se vor pune numere din ce in ce mai mari, standard se vor pune numai 2 sau 4, iar hardcore se vor pune numai 2.
+		etc....
+
+## 5. IMPRESII PERSONALE:
+	
+	Mia placut tema, la inceput m-am panicat crezand ca nu o voi termina ( m-am apucat pe 2 ianuarie de ea, seara). 
+	Cel mai mult m-a incantat cum am gasit solutii la diverse probleme, nu am mai intrebat colegi, ci am cautat eu in cursurile de pe moodle sau pe net cum se fac anumite lucururi (timer, main menu). 
+	
+	Cel mai mandru sunt de functia Movement(). Esenta jocului se afla in acea functie si este cea mai importanta. 
+	La inceput chiar nu stiam cum voi face jocul apoi mi-a venit ideea.
+	
+	Alta functie de care sunt mandru este Timer(). Chiar nu stiam cum sa fac un cronometru in C, mai facusem in C\# in Unity si era mult mai simplu, apeland o simpla functie, dar aici am vazut eu cum ar functiona o asemenea functie. 
+	Cel mai mult mi-a luat sa imi dau seama cum sa citesc un caracter de la tastaura fara sa blochez tot programul cu getch().
+	
+	Am apreciat ca am fost plimbat prin mai tot ce am invatat la cursuri, regret ca nu am folosit macrouri sau pointeri la functii pentru un cod cat mai generic si lipsit de dependente, 
+	dar pentru un prim proiect de genul consider ca este suficient.
+	
+	Mi-a mai placut ca ne-ati dat o biblioteca usoara, cand am auzit de tema credeam ca o sa o facem in openGL si am auzit ca e dificil de inteels, dar ncurses a fost foarte dragut pentru un proiect micut ca acesta.
