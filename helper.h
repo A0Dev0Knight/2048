@@ -12,6 +12,31 @@ typedef struct
     int dir;
 } AImove;
 
+typedef struct {
+    char name[5];
+    int score;   
+}Player;
+
+typedef struct 
+{
+    FILE *saveTablaJoc;
+    FILE *saveScore;
+} SaveFiles;
+
+typedef struct 
+{
+    FILE *howToPlayText;
+    FILE *creditsText;
+    FILE *gameOverText;
+    FILE *gamePseudoUI;
+}InfoFiles;
+
+typedef struct 
+{
+    SaveFiles saveFiles;
+    InfoFiles infoFiles;
+    FILE *leaderBoard;
+}NeededFiles;
 
 /*======STRUCTS======*/
 

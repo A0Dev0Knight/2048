@@ -325,11 +325,6 @@ void LoadGame(FILE *saveTablaJoc, FILE *saveScore, int **tablaJoc, int *score){
     *score = scorCitit;
 }
 
-typedef struct {
-    char name[5];
-    int score;   
-}Player;
-
 void SubmitScore(FILE *highScoretable, WINDOW *gameWindow, int max_terminal_x, int score){
 
     // printez mesajul cu promptul numelui
