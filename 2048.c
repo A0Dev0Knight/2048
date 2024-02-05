@@ -544,6 +544,8 @@ int main(int argc, char **argv)
 {
     // variabile initiale
     int i;
+    NeededFiles neededFiles;
+    enum GameState state;
 
     //  fisierele cu care voi salva datele principale ale programului
     FILE *saveTablaJoc = (FILE*)malloc(sizeof(FILE));
@@ -628,6 +630,7 @@ void GameLoop(int max_terminal_x, int max_terminal_y, FILE *saveTablaJoc, FILE *
     while (FOREVER)
     {
         int exitToMainMenu = 0;
+        //state = quitState
 
         // arat timpul curent si restul informatiilor in game info window
         GameInfoWindowText(gameInfoWindow, max_terminal_x, score);
@@ -647,6 +650,7 @@ void GameLoop(int max_terminal_x, int max_terminal_y, FILE *saveTablaJoc, FILE *
         case 'w':
         case 'W':
         case KEY_UP:
+            // enum pt directie
             directie = 0;
             // la fiecare pas corect salvez jocul pt a putea face undo
             SaveGame(saveTablaJoc,saveScore,tablaJoc,score);
@@ -692,6 +696,7 @@ void GameLoop(int max_terminal_x, int max_terminal_y, FILE *saveTablaJoc, FILE *
             wrefresh(gameWindow);
             wrefresh(gameInfoWindow);
 
+            // directionState = idle
             directie = -1;
             break;
 
@@ -936,7 +941,14 @@ void MainMenu(int max_terminal_x, int max_terminal_y, FILE *saveTablaJoc, FILE *
     keypad(menuWindow, true);
 
     // creez lista de optiuni din meniu
-    char *choices[MENU_NUMBER_OF_OPTIONS] = {"NEW GAME", "RESUME", "HOW TO PLAY", "CREDITS", "LEADERBOARD", "QUIT"};
+    char *choices[MENU_NUMBER_OF_OPTIONS] = {
+                                            "NEW GAME", 
+                                            "RESUME", 
+                                            "HOW TO PLAY", 
+                                            "CREDITS", 
+                                            "LEADERBOARD", 
+                                            "QUIT"
+                                            };
 
     int select;
     int highlight = 0;
@@ -999,6 +1011,7 @@ void MainMenu(int max_terminal_x, int max_terminal_y, FILE *saveTablaJoc, FILE *
                 // NEW GAME
                 clear();
                 refresh();
+                // state = newgamestate
                 GameLoop(max_terminal_x, max_terminal_y,saveTablaJoc,saveScore,highScoretable,tablaJoc,1);
                 break;
 
@@ -1013,13 +1026,14 @@ void MainMenu(int max_terminal_x, int max_terminal_y, FILE *saveTablaJoc, FILE *
                     fclose(saveTablaJoc);
                     clear();
                     refresh();
+                    // state = loadgame_state
                     GameLoop(max_terminal_x, max_terminal_y,saveTablaJoc,saveScore,highScoretable,tablaJoc,0);
                 }
                 break;
 
             case 2:
                 // HOW TO PLAY
-                howToPlay(MENU_WINDOW_HEIGHT,max_terminal_x);
+                howToPlay(MENU_WINDOW_HEIGHT,max_terminal_x /* char srcFileName*/);
                 break;
 
             case 3:
@@ -1040,6 +1054,7 @@ void MainMenu(int max_terminal_x, int max_terminal_y, FILE *saveTablaJoc, FILE *
             case 5:
                 // QUIT GAME
                 quitAction++;
+                //state = quitState
                 break;
 
             default:
@@ -1049,6 +1064,7 @@ void MainMenu(int max_terminal_x, int max_terminal_y, FILE *saveTablaJoc, FILE *
         else if (tolower(select) == 'q')
         {
             quitAction++;
+            //state = quitState
         }
 
         if (quitAction)

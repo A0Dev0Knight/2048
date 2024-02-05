@@ -40,6 +40,10 @@ typedef struct
 
 /*======STRUCTS======*/
 
+/*======ENUMS======*/
+typedef enum GameState{LoadGame_State, NewGame_State, QuitGame_State};
+typedef enum Direction{up, right, down, left, idle};
+/*======ENUMS======*/
 
 /*======NCURSES======*/
 // constante necesare programului mare
