@@ -510,6 +510,23 @@ void credits(int height, int width){
 }
 /*======CREDITS======*/
 
+#define MAX_MESSAGE_LENGTH 200
+void infoWindowDisplayText(int height, int width, char *srcFileName){
+    FILE *src = fopen(srcFileName,"r");
+
+    WINDOW *menuWindow = newwin(height,width,0,0);
+    box(menuWindow,0,0);
+    
+    int lineNr=1;
+    char line[MAX_MESSAGE_LENGTH];
+
+    while (feof(src)!=EOF)
+    {
+        fgets(line,MAX_MESSAGE_LENGTH,menuWindow);
+        mvwprintw(menuWindow,lineNr,PADDING_LEFT,"%s",line);
+        lineNr++;
+    }
+}
 
 /*======PAUSE MENU======*/
 #define PAUSE_MENU_HEIGHT 5
