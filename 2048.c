@@ -1,6 +1,13 @@
 // librarii necesare
 #include "helper.h"
 
+// external files
+#define PATH_saveTablaJoc "./files/tabla_joc"
+#define PATH_saveScore "./files/score"
+#define PATH_TEXT_howToPlay "./files/how_to_play.txt"
+#define PATH_TEXT_credits "./files/credits.txt"
+#define PATH_leaderBoard "./files/leaderboards"
+
 /*======GAMEPLAY LOOP======*/
 #define PANOU_CONTROL_H 5
 #define PANOU_JOC_H 20
@@ -203,7 +210,7 @@ int Movement(int **tablaJoc, int dir, int *nrOfCellsCleared);
 
 // codul ce va imbina logica de mai sus cu codul ncurses
 // prototipul functiei, deoarece vreau ca din GameLoop sa merg in MainMenu() si invers
-void GameLoop(int max_terminal_x, int max_terminal_y, FILE *saveTablaJoc, FILE *saveScore, FILE *highScoretable, int **tablaJoc, int isNewGame);
+void GameLoop(int max_terminal_x, int max_terminal_y, int **tablaJoc, int isNewGame);
 
 void PrintTablaJoc(int **tablaJoc, WINDOW *gameWindow)
 {
@@ -276,12 +283,12 @@ int ApplyMove(int **tablaJoc, int dir, int *nrOfCellsCleared)
 }
 
 // voi salva tabla de joc si scorul
-void SaveGame(FILE *saveTablaJoc, FILE *saveScore, int **tablaJoc, int score){
+void SaveGame(int **tablaJoc, int score){
     
     // deschid cele doua fisiere unde voi salva datele 
     // daca nu exista le voi crea si voi pune in ele ce trebuie
-    saveTablaJoc = fopen("./saveTablaJoc.txt","w+");
-    saveScore = fopen("./saveScore.txt","w+");
+    FILE *saveTablaJoc = fopen(PATH_saveTablaJoc,"w+");
+    FILE *saveScore = fopen(PATH_saveScore,"w+");
     
     int i,j;
     for (i = 0; i < 4; i++)
@@ -302,11 +309,11 @@ void SaveGame(FILE *saveTablaJoc, FILE *saveScore, int **tablaJoc, int score){
 }
 
 // voi incarca tabala de joc si scorul salvate in fisiere in tabla de joc si scorul folosite de joc
-void LoadGame(FILE *saveTablaJoc, FILE *saveScore, int **tablaJoc, int *score){
+void LoadGame(int **tablaJoc, int *score){
     
-    saveTablaJoc = fopen("./saveTablaJoc.txt", "r");
-    saveScore = fopen("./saveScore.txt","r");
-
+    FILE *saveTablaJoc = fopen(PATH_saveTablaJoc,"w+");
+    FILE *saveScore = fopen(PATH_saveScore,"w+");
+ 
     // ma asigur ca pointerul este la inceputul fisierului
     rewind(saveTablaJoc);
     rewind(saveScore);
@@ -325,7 +332,7 @@ void LoadGame(FILE *saveTablaJoc, FILE *saveScore, int **tablaJoc, int *score){
     *score = scorCitit;
 }
 
-void SubmitScore(FILE *highScoretable, WINDOW *gameWindow, int max_terminal_x, int score){
+void SubmitScore(WINDOW *gameWindow, int max_terminal_x, int score){
 
     // printez mesajul cu promptul numelui
     mvwprintw(gameWindow,3,PADDING_LEFT, "Introdu numele (3 caractere), apoi apasa orice tasta pt a submita scorul! Atentie: nu gresi");
@@ -361,9 +368,9 @@ void SubmitScore(FILE *highScoretable, WINDOW *gameWindow, int max_terminal_x, i
     player.score = score;
 
     // deschid fisierul playerii si adaug noul player
-    highScoretable = fopen("./highScoretable","ab+");
-    fwrite(&player,sizeof(Player),1,highScoretable);
-    fclose(highScoretable);
+    FILE *leaderboard = fopen(PATH_leaderBoard,"ab+");
+    fwrite(&player,sizeof(Player),1,leaderboard);
+    fclose(leaderboard);
 
     clear();
     refresh();
@@ -377,7 +384,7 @@ void SubmitScore(FILE *highScoretable, WINDOW *gameWindow, int max_terminal_x, i
 #define MENU_NUMBER_OF_OPTIONS 6
 
 // prototipul functiei detaliate mai jos
-void MainMenu(int max_terminal_x, int max_terminal_y, FILE *saveTablaJoc, FILE *saveScore, FILE *highScoretable, int **tablaJoc);
+void MainMenu(int max_terminal_x, int max_terminal_y, int **tablaJoc);
 /*======MENIUL PRINCIPAL======*/
 
 
@@ -385,21 +392,17 @@ void MainMenu(int max_terminal_x, int max_terminal_y, FILE *saveTablaJoc, FILE *
 #define NR_OF_PLAYERS 5
 
 // la inceput de joc voi initializa Leaderboardul
-void InitLeaderboard(FILE *highScoretable){
-    highScoretable = fopen("highScoretable", "ab+");
+void InitLeaderboard(){
+    FILE *leaderboard = fopen(PATH_leaderBoard,"ab+");
     
     // voi scrie 5 playeri cu nicio data in ei 
     Player playerGol;
     playerGol.score = 0;
     strcpy(playerGol.name,"___");
 
-    int i;
-    for (i = 0; i < 5; i++)
-    {
-        fwrite(&playerGol,sizeof(Player),1,highScoretable);
-    }
+    fwrite(&playerGol,sizeof(Player),5,leaderboard);
     
-    fclose(highScoretable);    
+    fclose(leaderboard);    
 }
 
 void PrintLeaderboard(FILE *highScoretable, int height, int width){
@@ -559,22 +562,13 @@ void PauseMenuWindow(int y, int x){
 // functia main a programului
 int main(int argc, char **argv)
 {
-    // variabile initiale
-    int i;
-    NeededFiles neededFiles;
-    enum GameState state;
-
-    //  fisierele cu care voi salva datele principale ale programului
-    FILE *saveTablaJoc = (FILE*)malloc(sizeof(FILE));
-    FILE *saveScore = (FILE*)malloc(sizeof(FILE));
-    FILE *highScoretable = (FILE*)malloc(sizeof(FILE));
-    
     // magie ca sa am numere random
     srand(time(NULL));
 
     // START
     initscr();
-
+    
+    int i;
     // alocare memorie pt tabla de joc pe care o voi flosi mereu pe parcursul jocului
     int **tablaJoc = (int **)calloc(4, sizeof(int *));
     for (i = 0; i < 4; i++)
@@ -590,7 +584,7 @@ int main(int argc, char **argv)
     getmaxyx(stdscr, max_terminal_y, max_terminal_x);
 
     // pornire joc in mod indirect
-    MainMenu(max_terminal_x, max_terminal_y,saveTablaJoc,saveScore,highScoretable,tablaJoc);
+    MainMenu(max_terminal_x, max_terminal_y,tablaJoc);
 
     // dealoc memoria pt tabla de joc
     free(tablaJoc);
@@ -601,7 +595,7 @@ int main(int argc, char **argv)
 }
 
 // Implementarea functiei GameLoop()
-void GameLoop(int max_terminal_x, int max_terminal_y, FILE *saveTablaJoc, FILE *saveScore, FILE *highScoretable, int **tablaJoc, int isNewGame)
+void GameLoop(int max_terminal_x, int max_terminal_y, int **tablaJoc, int isNewGame)
 {
     int i, j, score=0;
 
@@ -623,7 +617,7 @@ void GameLoop(int max_terminal_x, int max_terminal_y, FILE *saveTablaJoc, FILE *
     }
     else{
         // altfel se citesc tabla si scorul din fisierele respective
-        LoadGame(saveTablaJoc,saveScore,tablaJoc,&score);
+        LoadGame(tablaJoc,&score);
     }
     
 
@@ -670,28 +664,28 @@ void GameLoop(int max_terminal_x, int max_terminal_y, FILE *saveTablaJoc, FILE *
             // enum pt directie
             directie = 0;
             // la fiecare pas corect salvez jocul pt a putea face undo
-            SaveGame(saveTablaJoc,saveScore,tablaJoc,score);
+            SaveGame(tablaJoc,score);
             break;
 
         case 'd':
         case 'D':
         case KEY_RIGHT:
             directie = 1;
-            SaveGame(saveTablaJoc,saveScore,tablaJoc,score);
+            SaveGame(tablaJoc,score);
             break;
 
         case 's':
         case 'S':
         case KEY_DOWN:
             directie = 2;
-            SaveGame(saveTablaJoc,saveScore,tablaJoc,score);
+            SaveGame(tablaJoc,score);
             break;
 
         case 'a':
         case 'A':
         case KEY_LEFT:
             directie = 3;
-            SaveGame(saveTablaJoc,saveScore,tablaJoc,score);
+            SaveGame(tablaJoc,score);
             break;
 
         case 'q':
@@ -720,7 +714,7 @@ void GameLoop(int max_terminal_x, int max_terminal_y, FILE *saveTablaJoc, FILE *
         case 'u':
         case 'U':
             // UNDO
-            LoadGame(saveTablaJoc,saveScore,tablaJoc,&score);
+            LoadGame(tablaJoc,&score);
             directie = -1;
             break;
         
@@ -732,7 +726,7 @@ void GameLoop(int max_terminal_x, int max_terminal_y, FILE *saveTablaJoc, FILE *
         // testez daca ies la meniul principal
         if (exitToMainMenu)
         {
-            SaveGame(saveTablaJoc,saveScore,tablaJoc,score);
+            SaveGame(tablaJoc,score);
             clear();
             refresh();
             break;
@@ -764,7 +758,7 @@ void GameLoop(int max_terminal_x, int max_terminal_y, FILE *saveTablaJoc, FILE *
             WinLooseText(gameWindow, max_terminal_x, score, tablaJoc);
                         
             // submitez scorul
-            SubmitScore(highScoretable,gameWindow,max_terminal_x,score);
+            SubmitScore(gameWindow,max_terminal_x,score);
             
             break;
         }
@@ -944,8 +938,9 @@ int Movement(int **tablaJoc, int dir, int *nrOfCellsCleared)
     return score;
 }
 
-void MainMenu(int max_terminal_x, int max_terminal_y, FILE *saveTablaJoc, FILE *saveScore, FILE *highScoretable, int **tablaJoc)
+void MainMenu(int max_terminal_x, int max_terminal_y, int **tablaJoc)
 {
+    enum GameState stateOfPlay = Idle_State;
     // crearea ferestrei meniu
     WINDOW *menuWindow = newwin(MENU_WINDOW_HEIGHT, max_terminal_x, 0, 0);
     box(menuWindow, 0, 0);
@@ -1028,23 +1023,26 @@ void MainMenu(int max_terminal_x, int max_terminal_y, FILE *saveTablaJoc, FILE *
                 // NEW GAME
                 clear();
                 refresh();
-                // state = newgamestate
-                GameLoop(max_terminal_x, max_terminal_y,saveTablaJoc,saveScore,highScoretable,tablaJoc,1);
+                
+                stateOfPlay = NewGame_State;
+                GameLoop(max_terminal_x, max_terminal_y,tablaJoc,stateOfPlay);
                 break;
 
             case 1:
                 // RESUME
-                saveScore = fopen("saveScore.txt","r");
-                saveTablaJoc = fopen("saveTablaJoc.txt","r");
+                FILE *saveScore = fopen(PATH_saveScore,"r");
+                FILE *saveTablaJoc = fopen(PATH_saveTablaJoc,"r");
 
                 if (saveScore!= NULL && saveTablaJoc!= NULL)
                 {
                     fclose(saveScore);
                     fclose(saveTablaJoc);
+                    
                     clear();
                     refresh();
-                    // state = loadgame_state
-                    GameLoop(max_terminal_x, max_terminal_y,saveTablaJoc,saveScore,highScoretable,tablaJoc,0);
+                    
+                    stateOfPlay = ResumeGame_State;
+                    GameLoop(max_terminal_x, max_terminal_y,tablaJoc,stateOfPlay);
                 }
                 break;
 
@@ -1060,18 +1058,18 @@ void MainMenu(int max_terminal_x, int max_terminal_y, FILE *saveTablaJoc, FILE *
             
             case 4:
                 // LEADERBOARDS
-                highScoretable = fopen("highScoretable","rb");
-                if (highScoretable == NULL){
-                    fclose(highScoretable);
-                    InitLeaderboard(highScoretable);
+                FILE *leaderboard = fopen(PATH_leaderBoard,"rb");
+                if (leaderboard != NULL){
+                    fclose(leaderboard);
+                    
+                    InitLeaderboard();
+                    PrintLeaderboard(MENU_WINDOW_HEIGHT,max_terminal_y,max_terminal_x);
                 }
-                PrintLeaderboard(highScoretable,MENU_WINDOW_HEIGHT,max_terminal_x);
                 break;
 
             case 5:
                 // QUIT GAME
-                quitAction++;
-                //state = quitState
+                stateOfPlay = QuitGame_State;
                 break;
 
             default:
@@ -1080,13 +1078,12 @@ void MainMenu(int max_terminal_x, int max_terminal_y, FILE *saveTablaJoc, FILE *
         }
         else if (tolower(select) == 'q')
         {
-            quitAction++;
-            //state = quitState
+            stateOfPlay = QuitGame_State;
         }
 
-        if (quitAction)
+        if (stateOfPlay == QuitGame_State)
         {
-            quitAction = 0;
+            stateOfPlay = Idle_State;
             break;
         }
 

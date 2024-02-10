@@ -16,32 +16,10 @@ typedef struct {
     char name[5];
     int score;   
 }Player;
-
-typedef struct 
-{
-    FILE *saveTablaJoc;
-    FILE *saveScore;
-} SaveFiles;
-
-typedef struct 
-{
-    FILE *howToPlayText;
-    FILE *creditsText;
-    FILE *gameOverText;
-    FILE *gamePseudoUI;
-}InfoFiles;
-
-typedef struct 
-{
-    SaveFiles saveFiles;
-    InfoFiles infoFiles;
-    FILE *leaderBoard;
-}NeededFiles;
-
 /*======STRUCTS======*/
 
 /*======ENUMS======*/
-typedef enum GameState{LoadGame_State, NewGame_State, QuitGame_State};
+typedef enum GameState{Idle_State, ResumeGame_State, NewGame_State, QuitGame_State};
 typedef enum Direction{up, right, down, left, idle};
 /*======ENUMS======*/
 
