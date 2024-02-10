@@ -210,7 +210,7 @@ int Movement(int **tablaJoc, int dir, int *nrOfCellsCleared);
 
 // codul ce va imbina logica de mai sus cu codul ncurses
 // prototipul functiei, deoarece vreau ca din GameLoop sa merg in MainMenu() si invers
-void GameLoop(int max_terminal_x, int max_terminal_y, int **tablaJoc, int isNewGame);
+void GameLoop(int max_terminal_x, int max_terminal_y, int **tablaJoc, enum GameState state);
 
 void PrintTablaJoc(int **tablaJoc, WINDOW *gameWindow)
 {
@@ -405,25 +405,25 @@ void InitLeaderboard(){
     fclose(leaderboard);    
 }
 
-void PrintLeaderboard(FILE *highScoretable, int height, int width){
+void PrintLeaderboard(int height, int width){
     
     // se deschide fisierul
-    highScoretable=fopen("./highScoretable","rb");
+    FILE *leaderboard=fopen(PATH_leaderBoard,"rb");
 
     int nrOfPlayers = 0;
 
     // calculez nr de playeri din fisier
-    fseek(highScoretable,0,SEEK_END);
-    nrOfPlayers = (ftell(highScoretable))/sizeof(Player);    
+    fseek(leaderboard,0,SEEK_END);
+    nrOfPlayers = (ftell(leaderboard))/sizeof(Player);    
     
     // ma intorc la inceput de fisier
-    rewind(highScoretable);
+    rewind(leaderboard);
     
     // aloc playerii
     Player *player = (Player*)calloc(nrOfPlayers+1,sizeof(Player));
     
     // apoi ii citesc
-    fread(player,sizeof(Player),nrOfPlayers,highScoretable);
+    fread(player,sizeof(Player),nrOfPlayers,leaderboard);
     
     // le ordonez descrescator
     int i,j;
@@ -466,30 +466,7 @@ void PrintLeaderboard(FILE *highScoretable, int height, int width){
 }
 /*======LEADERBOARD======*/
 
-
-
-/*======CREDITS======*/
-// acelasi lucru se petrece si aici
-void credits(int height, int width){
-    
-    WINDOW *creditsWindow = newwin(height,width,0,0);
-    box(creditsWindow,0,0);
-    
-    mvwprintw(creditsWindow,1,PADDING_LEFT,"Joc realizat de Barbu Alexandru Daniel,");
-    mvwprintw(creditsWindow,2,PADDING_LEFT,"student la Facultatea de Automatica si Calculatoare,");
-    mvwprintw(creditsWindow,3,PADDING_LEFT,"CTI 314CC");
-
-    refresh();
-    wrefresh(creditsWindow);
-    
-    getch();
-    
-    clear();
-    refresh();
-}
-/*======CREDITS======*/
-
-// creeaza o fereastra cu dimensiunile terminalului si prezinta textul dintr0un fisier text
+// creeaza o fereastra cu dimensiunile date si prezinta continutul dintr-un fisier text
 #define MAX_MESSAGE_LENGTH 200
 void WindowDisplayText(int height, int width, char *srcFileName){
     FILE *src = fopen(srcFileName,"r");
@@ -579,11 +556,12 @@ int main(int argc, char **argv)
 }
 
 // Implementarea functiei GameLoop()
-void GameLoop(int max_terminal_x, int max_terminal_y, int **tablaJoc, int isNewGame)
+void GameLoop(int max_terminal_x, int max_terminal_y, int **tablaJoc, enum GameState state)
 {
     int i, j, score=0;
+    enum Direction direction = idle;
 
-    if (isNewGame)
+    if (state == NewGame_State)
     {
         // golesc tabla dac aintru in new game
         for (i = 0; i < 4; i++)
@@ -647,6 +625,7 @@ void GameLoop(int max_terminal_x, int max_terminal_y, int **tablaJoc, int isNewG
         case KEY_UP:
             // enum pt directie
             directie = 0;
+            direction = up;
             // la fiecare pas corect salvez jocul pt a putea face undo
             SaveGame(tablaJoc,score);
             break;
@@ -655,6 +634,7 @@ void GameLoop(int max_terminal_x, int max_terminal_y, int **tablaJoc, int isNewG
         case 'D':
         case KEY_RIGHT:
             directie = 1;
+            direction = right;
             SaveGame(tablaJoc,score);
             break;
 
@@ -662,6 +642,7 @@ void GameLoop(int max_terminal_x, int max_terminal_y, int **tablaJoc, int isNewG
         case 'S':
         case KEY_DOWN:
             directie = 2;
+            direction = down;
             SaveGame(tablaJoc,score);
             break;
 
@@ -669,6 +650,7 @@ void GameLoop(int max_terminal_x, int max_terminal_y, int **tablaJoc, int isNewG
         case 'A':
         case KEY_LEFT:
             directie = 3;
+            direction = left;
             SaveGame(tablaJoc,score);
             break;
 
@@ -691,7 +673,7 @@ void GameLoop(int max_terminal_x, int max_terminal_y, int **tablaJoc, int isNewG
             wrefresh(gameWindow);
             wrefresh(gameInfoWindow);
 
-            // directionState = idle
+            direction = idle;
             directie = -1;
             break;
 
@@ -699,11 +681,13 @@ void GameLoop(int max_terminal_x, int max_terminal_y, int **tablaJoc, int isNewG
         case 'U':
             // UNDO
             LoadGame(tablaJoc,&score);
+            direction = idle;
             directie = -1;
             break;
         
         default:
             directie = -1;
+            direction = idle;
             break;
         }
 
@@ -1048,7 +1032,7 @@ void MainMenu(int max_terminal_x, int max_terminal_y, int **tablaJoc)
                     fclose(leaderboard);
                     
                     InitLeaderboard();
-                    PrintLeaderboard(MENU_WINDOW_HEIGHT,max_terminal_y,max_terminal_x);
+                    PrintLeaderboard(max_terminal_y,max_terminal_x);
                 }
                 break;
 
