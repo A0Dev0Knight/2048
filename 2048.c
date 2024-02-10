@@ -467,30 +467,6 @@ void PrintLeaderboard(FILE *highScoretable, int height, int width){
 /*======LEADERBOARD======*/
 
 
-/*======HOW TO PLAY======*/
-// aici desenez si printez fereastar pentru meniul how to play
-void howToPlay(int height, int width){
-    
-    WINDOW *howToPlayWindow = newwin(height,width,0,0);
-    box(howToPlayWindow,0,0);
-    
-    // printez mesajul
-    mvwprintw(howToPlayWindow,1,PADDING_LEFT,"Meniu principal: wasd sau sageti, enter pt a selecta, q pt a iesi");
-    mvwprintw(howToPlayWindow,2,PADDING_LEFT,"Joc: wasd sau sageti, q pt a iesi, p pt a pune pauza");
-    mvwprintw(howToPlayWindow,3,PADDING_LEFT,"Resume: selecteaza resume pt a relua ultimul joc la care ai ramas");
-    mvwprintw(howToPlayWindow,5,PADDING_LEFT,"DEVELOPER HIGH SCORE: 432");
-    mvwprintw(howToPlayWindow,7,PADDING_LEFT,"---Pentru a iesi la meniul principal apasa orice tasta!---");
-    
-    refresh();
-    wrefresh(howToPlayWindow);
-    
-    getch();
-    
-    clear();
-    refresh();
-}
-/*======HOW TO PLAY======*/
-
 
 /*======CREDITS======*/
 // acelasi lucru se petrece si aici
@@ -513,6 +489,7 @@ void credits(int height, int width){
 }
 /*======CREDITS======*/
 
+// creeaza o fereastra cu dimensiunile terminalului si prezinta textul dintr0un fisier text
 #define MAX_MESSAGE_LENGTH 200
 void WindowDisplayText(int height, int width, char *srcFileName){
     FILE *src = fopen(srcFileName,"r");
@@ -1061,7 +1038,7 @@ void MainMenu(int max_terminal_x, int max_terminal_y, int **tablaJoc)
 
             case 3:
                 // CREDITS
-                credits(MENU_WINDOW_HEIGHT,max_terminal_x);
+                WindowDisplayText(max_terminal_y,max_terminal_x,PATH_TEXT_credits);
                 break;
             
             case 4:
