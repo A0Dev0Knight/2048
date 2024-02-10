@@ -263,9 +263,7 @@ void GameInfoWindowText(WINDOW *gameInfoWindow, int max_terminal_x, int score)
 {
     time_t t;
     time(&t);
-    mvwprintw(gameInfoWindow, 1, PADDING_LEFT, "%s", ctime(&t));
-    mvwprintw(gameInfoWindow, 1, max_terminal_x / 2, "Score: %d", score);
-    mvwprintw(gameInfoWindow, 1, max_terminal_x - PADDING_LEFT - 30, "WASD/sageti; Q - QUIT; U -undo");
+    mvwprintw(gameInfoWindow, 1, 1, "%s\tScore: %d\tWASD | Q-QUIT | U-UNDO", ctime(&t),score);
     wrefresh(gameInfoWindow);
 }
 
@@ -311,8 +309,8 @@ void SaveGame(int **tablaJoc, int score){
 // voi incarca tabala de joc si scorul salvate in fisiere in tabla de joc si scorul folosite de joc
 void LoadGame(int **tablaJoc, int *score){
     
-    FILE *saveTablaJoc = fopen(PATH_saveTablaJoc,"w+");
-    FILE *saveScore = fopen(PATH_saveScore,"w+");
+    FILE *saveTablaJoc = fopen(PATH_saveTablaJoc,"r");
+    FILE *saveScore = fopen(PATH_saveScore,"r");
  
     // ma asigur ca pointerul este la inceputul fisierului
     rewind(saveTablaJoc);
