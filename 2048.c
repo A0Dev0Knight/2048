@@ -514,7 +514,7 @@ void credits(int height, int width){
 /*======CREDITS======*/
 
 #define MAX_MESSAGE_LENGTH 200
-void infoWindowDisplayText(int height, int width, char *srcFileName){
+void WindowDisplayText(int height, int width, char *srcFileName){
     FILE *src = fopen(srcFileName,"r");
 
     WINDOW *menuWindow = newwin(height,width,0,0);
@@ -523,12 +523,19 @@ void infoWindowDisplayText(int height, int width, char *srcFileName){
     int lineNr=1;
     char line[MAX_MESSAGE_LENGTH];
 
-    while (feof(src)!=EOF)
+    rewind(src);
+    while (fgets(line,MAX_MESSAGE_LENGTH,src) != NULL)
     {
-        fgets(line,MAX_MESSAGE_LENGTH,menuWindow);
         mvwprintw(menuWindow,lineNr,PADDING_LEFT,"%s",line);
         lineNr++;
     }
+
+    refresh();
+    wrefresh(menuWindow);
+    getch();
+    fclose(src);
+    clear();
+    refresh();
 }
 
 /*======PAUSE MENU======*/
@@ -1048,7 +1055,8 @@ void MainMenu(int max_terminal_x, int max_terminal_y, int **tablaJoc)
 
             case 2:
                 // HOW TO PLAY
-                howToPlay(MENU_WINDOW_HEIGHT,max_terminal_x /* char srcFileName*/);
+                WindowDisplayText(max_terminal_y,max_terminal_x,PATH_TEXT_howToPlay);
+                //howToPlay(MENU_WINDOW_HEIGHT,max_terminal_x /* char srcFileName*/);
                 break;
 
             case 3:
