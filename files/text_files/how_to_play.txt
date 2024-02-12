@@ -1,0 +1,14 @@
+
+,--.  ,--.  ,-----.  ,--.   ,--.     ,--------.  ,-----.      ,------.  ,--.      ,---.   ,--.   ,--. 
+|  '--'  | '  .-.  ' |  |   |  |     '--.  .--' '  .-.  '     |  .--. ' |  |     /  O  \   \  `.'  /  
+|  .--.  | |  | |  | |  |.'.|  |        |  |    |  | |  |     |  '--' | |  |    |  .-.  |   '.    /   
+|  |  |  | '  '-'  ' |   ,'.   |        |  |    '  '-'  '     |  | --'  |  '--. |  | |  |     |  |    
+`--'  `--'  `-----'  '--'   '--'        `--'     `-----'      `--'      `-----' `--' `--'     `--'    
+
+
+Meniu principal: wasd sau sageti, enter pt a selecta, q pt a iesi
+Joc: wasd sau sageti, q pt a iesi, p pt a pune pauza
+Resume: selecteaza resume pt a relua ultimul joc la care ai ramas
+DEVELOPER HIGH SCORE: 432
+
+---Pentru a iesi la meniul principal apasa orice tasta!---
