@@ -108,7 +108,3 @@ int goodInput(int input)
     }
     return 0;
 }
-
-
-
-

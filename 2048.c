@@ -1,12 +1,14 @@
 // librarii necesare
 #include "helper.h"
 
-// external files
+// fisiere externe
 #define PATH_saveTablaJoc "./files/tabla_joc"
 #define PATH_saveScore "./files/score"
 #define PATH_TEXT_howToPlay "./files/how_to_play.txt"
 #define PATH_TEXT_credits "./files/credits.txt"
 #define PATH_leaderBoard "./files/leaderboards"
+#define PATH_TEXT_gameOver "./files/game_over.txt"
+#define PATH_TEXT_mainMenu "./files/main_menu.txt"
 
 /*======GAMEPLAY LOOP======*/
 #define PANOU_CONTROL_H 5
@@ -212,6 +214,8 @@ int Movement(int **tablaJoc, int dir, int *nrOfCellsCleared);
 // prototipul functiei, deoarece vreau ca din GameLoop sa merg in MainMenu() si invers
 void GameLoop(int max_terminal_x, int max_terminal_y, int **tablaJoc, enum GameState state);
 
+void PrintTextFromFileInWindow(char *srcFileName, WINDOW *menuWindow);
+
 void PrintTablaJoc(int **tablaJoc, WINDOW *gameWindow)
 {
     int i, j;
@@ -243,6 +247,8 @@ void PrintTablaJoc(int **tablaJoc, WINDOW *gameWindow)
 // functie ce afiseaza text la final de runda
 void WinLooseText(WINDOW *gameWindow, int max_terminal_x, int score, int **tablaJoc)
 {
+    PrintTextFromFileInWindow(PATH_TEXT_gameOver,gameWindow);
+
     mvwprintw(gameWindow, 10, max_terminal_x / 2 - 30, "Your final score was: %d.", score);
     mvwprintw(gameWindow, 11, max_terminal_x / 2 - 30, "Press any key to submit your score!");
     if (isWinner(tablaJoc))
@@ -377,8 +383,8 @@ void SubmitScore(WINDOW *gameWindow, int max_terminal_x, int score){
 
 
 /*======MENIUL PRINCIPAL======*/
-#define MENU_WINDOW_HEIGHT 10
-#define MENU_ITEMS_PADDING 4
+#define MENU_WINDOW_HEIGHT 50
+#define MENU_ITEMS_PADDING 10
 #define MENU_NUMBER_OF_OPTIONS 6
 
 // prototipul functiei detaliate mai jos
@@ -467,27 +473,32 @@ void PrintLeaderboard(int height, int width){
 // creeaza o fereastra cu dimensiunile date si prezinta continutul dintr-un fisier text
 #define MAX_MESSAGE_LENGTH 200
 void WindowDisplayText(int height, int width, char *srcFileName){
-    FILE *src = fopen(srcFileName,"r");
-
     WINDOW *menuWindow = newwin(height,width,0,0);
     box(menuWindow,0,0);
+
+    PrintTextFromFileInWindow(srcFileName, menuWindow);
+    refresh();
+    wrefresh(menuWindow);
     
-    int lineNr=1;
+    getch();
+    
+    clear();
+    refresh();
+}
+
+void PrintTextFromFileInWindow(char *srcFileName, WINDOW *menuWindow)
+{
+    FILE *src = fopen(srcFileName, "r");
+    int lineNr = 1;
     char line[MAX_MESSAGE_LENGTH];
 
     rewind(src);
-    while (fgets(line,MAX_MESSAGE_LENGTH,src) != NULL)
+    while (fgets(line, MAX_MESSAGE_LENGTH, src) != NULL)
     {
-        mvwprintw(menuWindow,lineNr,PADDING_LEFT,"%s",line);
+        mvwprintw(menuWindow, lineNr, PADDING_LEFT, "%s", line);
         lineNr++;
     }
-
-    refresh();
-    wrefresh(menuWindow);
-    getch();
     fclose(src);
-    clear();
-    refresh();
 }
 
 /*======PAUSE MENU======*/
@@ -931,6 +942,8 @@ void MainMenu(int max_terminal_x, int max_terminal_y, int **tablaJoc)
     int select;
     int highlight = 0;
 
+    PrintTextFromFileInWindow(PATH_TEXT_mainMenu,menuWindow);
+
     while (FOREVER)
     {
         // printez cele MENU_NUMBER_OF_OPTIONS optiuni ale meniului
@@ -940,7 +953,7 @@ void MainMenu(int max_terminal_x, int max_terminal_y, int **tablaJoc)
             if (i == highlight)
                 wattron(menuWindow, A_REVERSE);
 
-            mvwprintw(menuWindow, i + 1, MENU_ITEMS_PADDING, "%s", choices[i]);
+            mvwprintw(menuWindow, i + 10, MENU_ITEMS_PADDING, "%s", choices[i]);
             wattroff(menuWindow, A_REVERSE);
         }
 
